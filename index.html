@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>
+			Running Game
+		</title>
+	</head>
+	
+	<body>
+		<p id="text"></p>
+		
+		<script>
+			//get text 
+			var text = document.getElementById("text");
+			
+			//create accelerometer 
+			var acc = new Accelerometer();
+			
+			//get xyz 
+			document.addEventListener("reading", () => {
+				//set text acceleration 
+				text.innerHTML = "X: " + acc.x + "<br/>Y: " + acc.y + "<br/>Z: " + acc.z;
+			});
+			
+			//start acc
+			acc.start();
+		</script>
+	</body>
+</html>
