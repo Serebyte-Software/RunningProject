@@ -29,6 +29,41 @@
 			var startPosition = null;
 			var oldPosition = null;
 			var newPosition = null;
+			var totalDistance = 0;
+			const radiusOfEarth = 6471000; //radius of earth in m
+			
+			//calculate arc length between two points on a sphere
+			function calculateArcDistance(lat1, lat2, long1, long2){
+				//arc length = A/360 * Pi * 2r
+				//A = cos-1((b^2 + c^2 - a^2) / 2bc) so 
+				//A = cos-1((2r^2 - a^2) / 2r^2)
+				//a = sqrt(dX^2 + dY^2)
+				//dX = sin(dLong) * r
+				//dY = sin(dLat) * r
+				//a = sqrt((sin(dLong) * r)^2 + (sin(dLat) * r)^2);
+				//A = cos-1((2r^2 - ((sin(dLong) * r)^2 + (sin(dLat) * r)^2))/2r^2)
+				//arc length = cos-1((2r^2 - ((sin(dLong) * r)^2 + (sin(dLat) * r)^2))/2r^2)/360 * Pi * 2r
+			
+				//get dlat and dlong 
+				let dLat = lat2 - lat1;
+				let dLong = long2 - long1;
+				
+				//get dx and dy 
+				let dX = Math.sin(dLong) * radiusOfEarth;
+				let dY = Math.sin(dLat) * radiusOfEarth;
+				
+				//get side a 
+				let a = Math.sqrt(((Math.sin(dLong) * radiusOfEarth)**2) + ((Math.sin(dLat) * radiusOfEarth)**2));
+				
+				//get angle A 
+				let angleA = Math.acos((((radiusOfEarth ** 2)* 2) - (a**2)) / (2 * (radiusOfEarth **2)));
+				
+				//get arc length 
+				let arcLength = (angleA/360) * Math.PI * 2 * radiusOfEarth;
+				
+				//return distance 
+				return arcLength;
+			};
 			
 			//get current position and set to start
 			navigator.geolocation.getCurrentPosition((position) => {
@@ -42,8 +77,14 @@
 			
 			//set move event listener 
 			navigator.geolocation.watchPosition((position) => {
+				//set new position 
+				newPosition = position;
+				
+				//calculate the new distance 
+				totalDistance += calculateArcDistance(oldPosition.coords.latitude, newPosition.coords.latitude, oldPosition.coords.longitude, newPosition.coords.longitude);
+				
 				// same as above
-				document.getElementById("text").innerHTML = position.coords.latitude + " " + position.coords.longitude;
+				document.getElementById("text").innerHTML = "Lat: " + position.coords.latitude + "<br/>Long: " + position.coords.longitude + "<br/>Total distance: " + totalDistance + "m";
 			});
 			
 			/*
