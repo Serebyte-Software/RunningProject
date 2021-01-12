@@ -7,23 +7,58 @@
 	</head>
 	
 	<body>
+		<h1>
+			Running Game Demo
+		</h1>
+	
 		<p id="text"></p>
 		
 		<script>
+			//ask geolocation permission
+			navigator.geolocation.getCurrentPosition(() => {return true;});
+		
 			//get text 
 			var text = document.getElementById("text");
 			
-			//create accelerometer 
-			var acc = new Accelerometer();
+			//works
 			
-			//get xyz 
-			document.addEventListener("reading", () => {
-				//set text acceleration 
-				text.innerHTML = "X: " + acc.x + "<br/>Y: " + acc.y + "<br/>Z: " + acc.z;
+			//define global variables 
+			var frameInterval = null;
+			var startPosition = null;
+			var oldPosition = null;
+			var newPosition = null;
+			
+			//get current position and set to start
+			navigator.geolocation.getCurrentPosition((position) => {
+				startPosition = position;
+				
+				//get current position 
+				console.log(startPosition);
+				text.innerHTML = startPosition;
+				oldPosition = startPosition;
 			});
 			
-			//start acc
-			acc.start();
+			//set move event listener 
+			navigator.geolocation.watchPosition((position) => {
+				// same as above
+				document.getElementById("text").innerHTML = position.coords.latitude + " " + position.coords.longitude;
+			});
+			
+			/*
+			//set refresh interval 
+			frameInterval = window.setInterval(() => {
+				//get new position
+				navigator.geolocation.getCurrentPosition((position) => {
+					//get current position
+					newPosition = position;
+					
+					//calculate the change in distance 
+					
+					
+					text.innerHTML = newPosition.coords.latitude + " " + newPosition.coords.longitude;
+				});
+			}, 1000 / 60);
+			*/
 		</script>
 	</body>
 </html>
