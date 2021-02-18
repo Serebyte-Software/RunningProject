@@ -2,106 +2,145 @@
 <html>
 	<head>
 		<title>
-			Running Game
+			Running App / Game
 		</title>
 		
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<style>
+			h1 {
+				font-family: arial;
+			}
+		</style>
 	</head>
 	
 	<body>
-		<h1>
-			Running Game Demo
-		</h1>
-	
-		<p id="text"></p>
+		<header>
+			<h1>
+				Running Game
+			</h1>
+		</header>
 		
+		<section>
+			<h2>
+				Load Save
+			</h2>
+			
+			<br/>
+			
+			<input id="saveSelect" type="file"></input>
+			
+			<br/>
+			
+			<br/>
+			
+			<button onclick="loadSave()">
+				Load Save
+			</button>
+			
+			<br/>
+			
+			<br/>
+			
+			<br/>
+			
+			<h2>
+				Start New Save
+			</h2>
+			
+			<button onclick="newGame()">
+				New Save
+			</button>
+		</section>
+		 
 		<script>
-			//ask geolocation permission
-			navigator.geolocation.getCurrentPosition(() => {return true;});
-		
-			//get text 
-			var text = document.getElementById("text");
+			//do nothing
 			
-			//works
+			//global variables 
+			var name = "";
+			var save = "";
 			
-			//define global variables 
-			var frameInterval = null;
-			var startPosition = null;
-			var oldPosition = null;
-			var newPosition = null;
-			var totalDistance = 0;
-			const radiusOfEarth = 6471000; //radius of earth in m
-			
-			//calculate arc length between two points on a sphere
-			function calculateArcDistance(lat1, lat2, long1, long2){
-				//arc length = A/360 * Pi * 2r
-				//A = cos-1((b^2 + c^2 - a^2) / 2bc) so 
-				//A = cos-1((2r^2 - a^2) / 2r^2)
-				//a = sqrt(dX^2 + dY^2)
-				//dX = sin(dLong) * r
-				//dY = sin(dLat) * r
-				//a = sqrt((sin(dLong) * r)^2 + (sin(dLat) * r)^2);
-				//A = cos-1((2r^2 - ((sin(dLong) * r)^2 + (sin(dLat) * r)^2))/2r^2)
-				//arc length = cos-1((2r^2 - ((sin(dLong) * r)^2 + (sin(dLat) * r)^2))/2r^2)/360 * Pi * 2r
-			
-				//get dlat and dlong 
-				let dLat = lat2 - lat1;
-				let dLong = long2 - long1;
-				
-				//get dx and dy 
-				let dX = Math.sin(dLong) * radiusOfEarth;
-				let dY = Math.sin(dLat) * radiusOfEarth;
-				
-				//get side a 
-				let a = Math.sqrt(((Math.sin(dLong) * radiusOfEarth)**2) + ((Math.sin(dLat) * radiusOfEarth)**2));
-				
-				//get angle A 
-				let angleA = Math.acos((((radiusOfEarth ** 2)* 2) - (a**2)) / (2 * (radiusOfEarth **2)));
-				
-				//get arc length 
-				let arcLength = (angleA/360) * Math.PI * 2 * radiusOfEarth;
-				
-				//return distance 
-				return arcLength;
+			//new game function 
+			function newGame(){
+				//go to form creation
+				goToFormCreation();
 			};
 			
-			//get current position and set to start
-			navigator.geolocation.getCurrentPosition((position) => {
-				startPosition = position;
-				
-				//get current position 
-				console.log(startPosition);
-				text.innerHTML = startPosition;
-				oldPosition = startPosition;
-			});
+			//go to menu
+			function goToFormCreation(){
+				//reset inner html 
+				document.body.innerHTML = "<header><h1>Create Account:</h1></header><br/><h2>What is your name?</h2><br/><input id=\"nameInput\"></input><br/><br/><button onclick=\"createSave()\">Create Account</button>";
+			};
 			
-			//set move event listener 
-			navigator.geolocation.watchPosition((position) => {
-				//set new position 
-				newPosition = position;
+			//filter name
+			function filterName(nameToFilter){
+				let tempName = "";
 				
-				//calculate the new distance 
-				totalDistance += calculateArcDistance(oldPosition.coords.latitude, newPosition.coords.latitude, oldPosition.coords.longitude, newPosition.coords.longitude);
+				for(let i = 0; i < nameToFilter.length; i++){
+					if(nameToFilter[i] != "|"){
+						tempName += nameToFilter[i];
+					};
+				};
 				
-				// same as above
-				document.getElementById("text").innerHTML = "Lat: " + position.coords.latitude + "<br/>Long: " + position.coords.longitude + "<br/>Total distance: " + totalDistance + "m";
-			});
+				return tempName;
+			};
 			
-			/*
-			//set refresh interval 
-			frameInterval = window.setInterval(() => {
-				//get new position
-				navigator.geolocation.getCurrentPosition((position) => {
-					//get current position
-					newPosition = position;
+			//loadSave
+			function loadSave(){
+				//create file reader 
+				if(document.getElementById("saveSelect").files.length > 0){
+					var reader = new FileReader();
+					reader.readAsText(document.getElementById("saveSelect").files[0]);
 					
-					//calculate the change in distance 
-					
-					
-					text.innerHTML = newPosition.coords.latitude + " " + newPosition.coords.longitude;
-				});
-			}, 1000 / 60);
-			*/
+					reader.onload = ()=>{
+						//set save 
+						save = reader.result;
+						
+						//set name 
+						name = save.substring(0,save.indexOf("|"));
+						
+						//proceed 
+						goToMenu();
+					};
+				} else {
+					alert("You have not selected a file!");
+				};
+				
+				//load save 
+				//console.log(document.getElementById("saveSelect").files);
+			};			
+			
+			//create save 
+			function createSave(){
+				//create save
+				if(name == ""){
+					name = document.getElementById("nameInput").value;
+				};
+				
+				if(name == "" || name.length < 1){
+					//error has occured 
+					alert("Please enter a name");
+					goToFormCreation();
+				};
+				
+				let fileString = name + "|0";
+				let fileName = name + ".runSave";
+				
+				var download = document.createElement("a");
+				download.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(fileString));
+				download.setAttribute("download", fileName);
+				download.style.display = "none";
+				document.body.appendChild(download);
+				download.click();
+				document.body.removeChild(download);
+				
+				//go to menu 
+				goToMenu();
+			};
+			
+			//go to menu 
+			function goToMenu(){
+				//change innerHTML
+				document.body.innerHTML = "<header><h1>Welcome " + name + "!</h1></header>";
+			};
 		</script>
 	</body>
 </html>
