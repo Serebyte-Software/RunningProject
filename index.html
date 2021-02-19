@@ -5,9 +5,60 @@
 			Running App / Game
 		</title>
 		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<meta >
+		
 		<style>
+			body {
+				margin: 0px;
+				padding: 0px;
+				background-color: black;
+			}
+			
+			header {
+				background-color: grey;
+				padding: 10px;
+				margin: 0px;
+			}
+			
+			section {
+				background-color: black;
+				padding: 10px 20px;
+				margin: 0px;
+			}
+		
 			h1 {
-				font-family: arial;
+				font-family: Trebuchet MS;
+				color: white;
+			}
+			
+			h2 {
+				font-family: Trebuchet MS;
+				color: white;
+			}
+			
+			h3 {
+				font-family: Trebuchet MS;
+				color: white;
+			}
+			
+			p {
+				font-family: Trebuchet MS;
+				color: white;
+			}
+			
+			.missionBar {
+				border-radius: 10px;
+				padding: 10px;
+				margin: 20px;
+				background-color: grey;
+				width: 80vw;
+			}
+			
+			.missionBar:hover {
+				background-color: lightgrey;
+				cursor: pointer;
 			}
 		</style>
 	</head>
@@ -57,6 +108,35 @@
 			//global variables 
 			var name = "";
 			var save = "";
+			var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+			var missionIndex = 0;
+			var missionSubIndex = 0;
+			
+			//main missions 
+			var mainMissions = [
+				[
+					["Walking", 60000],
+					["Running", 60000],
+					["Walking", 60000],
+					["Running", 120000],
+					["Walking", 60000],
+					["Running", 120000],
+					["Walking", 60000],
+					["Running", 180000],
+					["Walking", 60000],
+					["Running", 180000],
+					["Walking", 60000],
+					["Running", 240000],
+					["Walking", 60000],
+					["Running", 240000],
+					["Walking", 60000],
+					["Running", 300000],
+				],
+			];
+			
+			var briefings = [
+				()=>{return "So, you're the new recruit. " + name + ", right? That's a noble name, let's see if you're worthy to carry it. Firstly, I want to make sure you know what you're joining. As you know, the sorcerer Mortemagus captured our town. His demonic army, and brutal hexes make resistance near impossible. Key word: near. In short, we're a resistance group. We carry out a guerrilla attacks on demons stationed in the village. It's no full scale counter-invasion, but it's all we can do for now. So, very simply, I need you to take this note - a request for arrows and crosbow bolts to be delivered from agents in another shire. I've written down the address. It should be about a half an hour journey, but not much more. Well, we'll help you keep pace by ringing bells. One bell means walk, three bells means run, you got it? Good, see back here then. We'll ring ten bells when you're there, just to make sure (meeting places can be confusing with all these undercover locations) - we'll have someone watch you from the church tower. Oh yeah, one last thing: don't get caught. Our last scout met a... gruesome end, shall we say?"},
+			];
 			
 			//new game function 
 			function newGame(){
@@ -67,7 +147,7 @@
 			//go to menu
 			function goToFormCreation(){
 				//reset inner html 
-				document.body.innerHTML = "<header><h1>Create Account:</h1></header><br/><h2>What is your name?</h2><br/><input id=\"nameInput\"></input><br/><br/><button onclick=\"createSave()\">Create Account</button>";
+				document.body.innerHTML = "<header><h1>Create Account:</h1></header><section><h2>What is your name?</h2><br/><input id=\"nameInput\"></input><br/><br/><button onclick=\"createSave()\">Create Account</button></section>";
 			};
 			
 			//filter name
@@ -139,7 +219,74 @@
 			//go to menu 
 			function goToMenu(){
 				//change innerHTML
-				document.body.innerHTML = "<header><h1>Welcome " + name + "!</h1></header>";
+				document.body.innerHTML = "<header><h1>Welcome " + name + "!</h1></header><section><h2>Please Choose a Mission to Complete:</h2>";
+				document.body.innerHTML += "<div class=\"missionBar\" onclick=\"startMission(0)\"><p>Mission 1<br/>-Difficulty: recruit<br/>-Duration: 30 minutes</p></div>";
+				document.body.innerHTML += "";
+				document.body.innerHTML += "";
+				document.body.innerHTML += "</section>";
+			};
+			
+			//start mission 
+			function startMission(lev){
+				//start mission
+				document.body.innerHTML = "<header><h1>Mission " + (lev + 1) + " Briefing</h1></header><section>" +  "<p>" + briefings[lev]() + "</p><br/><button onclick=\"loadMission(" + lev +")\">Accept Mission</button><br/><br/><button onclick=\"goToMenu()\">Reject Mission</button>" + "</section>";
+			};
+			
+			//load mission 
+			function loadMission(lev){
+				missionIndex = lev;
+				
+				missionSubIndex = -1;
+				
+				updateMission();
+				
+				/*
+				//play sound 
+				if(mainMissions[misisonIndex][missionSubIndex] == "Walking"){
+					let audioInstance = new Audio("bellOne.mp3");
+					audioInstance.play();
+				} else {
+					let audioInstance = new Audio("bellThree.mp3");
+					audioInstance.play();
+				};
+				
+				setTimeout(()=>{updateMission(mainMissions[misisonIndex][0])}, mainMissions[missionIndex][1]);
+				*/
+			};
+			
+			//update mission 
+			function updateMission(){
+				//increment misison sub index 
+				missionSubIndex ++ 
+				
+				if(missionSubIndex < mainMissions[missionIndex].length){
+					//play sound 
+					if(mainMissions[missionIndex][missionSubIndex][0] == "Walking"){
+						let audioInstance = new Audio("bellOne.mp3");
+						audioInstance.play();
+					} else {
+						let audioInstance = new Audio("bellThree.mp3");
+						audioInstance.play();
+					};
+					
+					//set innerHTML 
+					document.body.innerHTML = "<header><h1>" + mainMissions[missionIndex][missionSubIndex][0] + " : " + missionSubIndex + " out of " + mainMissions[missionIndex].length + " completed!</h1></header>";
+					
+					setTimeout(updateMission, mainMissions[missionIndex][missionSubIndex][1])
+				} else {
+					//play 5 bells 
+					for(let i = 0; i < 10; i++){
+						setTimeout(()=>{
+							let audioInstance = new Audio("bellOne.mp3");
+							audioInstance.play();
+						}, 250 * (i + 1));
+					};
+					
+					//display done text 
+					//set innerHTML 
+					document.body.innerHTML = "<header><h1>Mission Complete!</h1><br/><br/><button onclick=\"goToMenu()\">Return to Menu</button></header>";
+					
+				};
 			};
 		</script>
 	</body>
